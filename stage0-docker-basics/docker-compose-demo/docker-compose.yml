@@ -1,0 +1,16 @@
+services:
+  backend:
+    build: ./backend
+    depends_on:
+      - db
+    environment:
+      DB_URL: jdbc:mysql://db:3306/testdb
+      DB_USER: root
+      DB_PASSWORD: root
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: testdb
+    ports:
+      - "3307:3306"
