@@ -29,3 +29,14 @@ docker run --name mysql-demo \
 ```shell
 ./gradlew bootRun
 ```
+
+
+3. create and retrive data
+```bash
+curl -X POST -H "Content-Type: application/json" \
+     -d '{"name":"Daniel","email":"daniel@example.com"}' \
+     http://localhost:8080/api/users
+```
+```bash
+curl http://localhost:8080/api/users
+```
