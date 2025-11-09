@@ -49,9 +49,7 @@ kubectl apply -f mysql-deployment.yaml
 
 # Wait for MySQL to be ready
 echo "⏳ Waiting for MySQL to be ready..."
-kubectl wait --for=condition=ready pod -l app=mysql --timeout=120s || {
-    echo "⚠️  MySQL pod not ready, but continuing..."
-}
+sleep 30
 
 # Step 4: Create backend ConfigMap
 echo "⚙️  Creating backend ConfigMap..."
@@ -73,7 +71,7 @@ kubectl apply -f frontend-service-lb.yaml
 
 # Wait a bit for pods to start
 echo "⏳ Waiting for pods to start..."
-sleep 10
+sleep 20
 
 # Show status
 echo ""

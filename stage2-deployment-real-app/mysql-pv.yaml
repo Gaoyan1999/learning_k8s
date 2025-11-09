@@ -1,5 +1,3 @@
-# For EKS, we use dynamic provisioning with EBS storage class
-# The PVC will automatically create a PV using the gp3 storage class
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

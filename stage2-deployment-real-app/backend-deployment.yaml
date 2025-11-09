@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: backend-deployment
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: backend
@@ -34,27 +34,6 @@ spec:
             secretKeyRef:
               name: mysql-secret
               key: password
-        - name: SERVER_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: backend-config
-              key: server.port
-        livenessProbe:
-          httpGet:
-            path: /api/users
-            port: 8080
-          initialDelaySeconds: 60
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
-        readinessProbe:
-          httpGet:
-            path: /api/users
-            port: 8080
-          initialDelaySeconds: 30
-          periodSeconds: 5
-          timeoutSeconds: 3
-          failureThreshold: 3
 ---
 apiVersion: v1
 kind: Service
