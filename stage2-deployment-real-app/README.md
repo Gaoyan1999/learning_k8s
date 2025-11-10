@@ -24,22 +24,29 @@ Deploy a full-stack application (Vue frontend + Spring Boot backend + MySQL data
 ```bash
 eksctl create cluster \
   --name my-eks-cluster \
-  --region us-west-2 \
+  --region ap-southeast-2 \
   --node-type t3.medium \
   --nodes 2
 
-aws eks update-kubeconfig --name my-eks-cluster --region us-west-2
+aws eks update-kubeconfig --name my-eks-cluster --region ap-southeast-2
 ```
 
 ### 2. Build and Push Images to ECR
 
 ```bash
 chmod +x build-images.sh
-export AWS_REGION=us-west-2
+export AWS_REGION=ap-southeast-2
 ./build-images.sh
 ```
 
 This will build and push images to ECR. Note the image URLs from the output.
+
+**Check ECR images:**
+```bash
+# List images in ECR repositories
+aws ecr list-images --repository-name learning-k8s-backend --region ap-southeast-2
+aws ecr list-images --repository-name learning-k8s-frontend --region ap-southeast-2
+```
 
 ### 3. Deploy to EKS
 
@@ -47,8 +54,15 @@ This will build and push images to ECR. Note the image URLs from the output.
 chmod +x setup.sh
 
 # Set image URLs (from build-images.sh output)
-export BACKEND_IMAGE=<your-ecr-backend-image-url>
-export FRONTEND_IMAGE=<your-ecr-frontend-image-url>
+# The script will output image URLs at the end, like:
+#   Backend:  <account-id>.dkr.ecr.ap-southeast-2.amazonaws.com/learning-k8s-backend:latest
+#   Frontend: <account-id>.dkr.ecr.ap-southeast-2.amazonaws.com/learning-k8s-frontend:latest
+# 
+# Or construct them manually:
+export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+export AWS_REGION=ap-southeast-2
+export BACKEND_IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/learning-k8s-backend:latest"
+export FRONTEND_IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/learning-k8s-frontend:latest"
 
 # Deploy
 ./setup.sh

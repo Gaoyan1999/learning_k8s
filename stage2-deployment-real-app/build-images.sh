@@ -10,7 +10,7 @@ BACKEND_SOURCE_DIR="${SCRIPT_DIR}/../stage0-docker-basics/003_stardard_backend"
 FRONTEND_DIR="${SCRIPT_DIR}/frontend"
 
 # Configuration - Update these values
-AWS_REGION="${AWS_REGION:-us-west-2}"
+AWS_REGION="${AWS_REGION:-ap-southeast-2}"
 AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID:-$(aws sts get-caller-identity --query Account --output text 2>/dev/null || echo '')}"
 ECR_REPOSITORY_PREFIX="${ECR_REPOSITORY_PREFIX:-learning-k8s}"
 
