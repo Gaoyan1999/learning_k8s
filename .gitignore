@@ -6,7 +6,20 @@
 .vscode/
 *.swp
 *.swo
+
+# --- Build artifacts ---
 build/
+target/
+.gradle/
+*.class
+*.jar
+*.war
+
+# --- Node.js / Frontend ---
+node_modules/
+dist/
+.npm
+.pnpm-store
 
 # --- Logs & PIDs ---
 *.log
@@ -14,3 +27,7 @@ build/
 # --- Environment files ---
 .env
 .env.*
+
+# --- Sensitive files (with real passwords) ---
+# Note: mysql-config.yaml contains passwords, use mysql-config.yaml.example instead
+stage2-deployment-real-app/mysql-config.yaml
