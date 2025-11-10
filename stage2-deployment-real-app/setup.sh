@@ -25,34 +25,27 @@ echo "✅ Connected to cluster: $(kubectl config current-context)"
 echo ""
 
 # Check if images are set in environment, if not, construct them automatically
-if [ -z "$BACKEND_IMAGE" ] || [ -z "$FRONTEND_IMAGE" ]; then
-    echo "⚠️  BACKEND_IMAGE and FRONTEND_IMAGE not set. Constructing automatically..."
-    
-    # Get AWS account ID and region
-    AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID:-$(aws sts get-caller-identity --query Account --output text 2>/dev/null || echo '')}"
-    AWS_REGION="${AWS_REGION:-ap-southeast-2}"
-    
-    if [ -z "$AWS_ACCOUNT_ID" ]; then
-        echo "❌ Cannot get AWS_ACCOUNT_ID. Please set it manually:"
-        echo "  export AWS_ACCOUNT_ID=<your-account-id>"
-        echo "  export BACKEND_IMAGE=<your-ecr-backend-image>"
-        echo "  export FRONTEND_IMAGE=<your-ecr-frontend-image>"
-        exit 1
-    fi
-    
-    ECR_REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-    export BACKEND_IMAGE="${ECR_REGISTRY}/learning-k8s-backend:latest"
-    export FRONTEND_IMAGE="${ECR_REGISTRY}/learning-k8s-frontend:latest"
-    
-    echo "✅ Auto-constructed image URLs:"
-    echo "  Backend:  ${BACKEND_IMAGE}"
-    echo "  Frontend: ${FRONTEND_IMAGE}"
-    echo ""
-else
-    # Export the variables to make them available to envsubst
-    export BACKEND_IMAGE
-    export FRONTEND_IMAGE
+# Always construct BACKEND_IMAGE and FRONTEND_IMAGE automatically, ignore any environment variable.
+echo "⚠️  BACKEND_IMAGE and FRONTEND_IMAGE not set (always using auto-construction)..."
+
+# Get AWS account ID and region
+AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID:-$(aws sts get-caller-identity --query Account --output text 2>/dev/null || echo '')}"
+AWS_REGION="${AWS_REGION:-ap-southeast-2}"
+
+if [ -z "$AWS_ACCOUNT_ID" ]; then
+    echo "❌ Cannot get AWS_ACCOUNT_ID. Please set it manually:"
+    echo "  export AWS_ACCOUNT_ID=<your-account-id>"
+    exit 1
 fi
+
+ECR_REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+export BACKEND_IMAGE="${ECR_REGISTRY}/learning-k8s-backend:latest"
+export FRONTEND_IMAGE="${ECR_REGISTRY}/learning-k8s-frontend:latest"
+
+echo "✅ Auto-constructed image URLs:"
+echo "  Backend:  ${BACKEND_IMAGE}"
+echo "  Frontend: ${FRONTEND_IMAGE}"
+echo ""
 
 # Step 1: Create ConfigMap and Secret
 echo "🔐 Creating ConfigMap and Secret for MySQL..."

@@ -52,12 +52,6 @@ aws ecr list-images --repository-name learning-k8s-frontend --region ap-southeas
 
 ```bash
 chmod +x setup.sh
-
-# The script will automatically construct image URLs if not set
-# You can optionally set them manually:
-export AWS_REGION=ap-southeast-2  # Optional, defaults to ap-southeast-2
-export ECR_REPOSITORY_PREFIX=learning-k8s  # Optional, defaults to learning-k8s
-
 # Deploy (script will auto-construct image URLs)
 ./setup.sh
 ```
