@@ -31,10 +31,6 @@ kubectl delete -f mysql-deployment.yaml --ignore-not-found=true
 echo "🗑️  Deleting MySQL ConfigMap and Secret..."
 kubectl delete -f mysql-config.yaml --ignore-not-found=true
 
-# Delete PVC (this will also delete the dynamically provisioned PV)
-echo "🗑️  Deleting PersistentVolumeClaim (and associated PV)..."
-kubectl delete -f mysql-pv.yaml --ignore-not-found=true
-
 # Wait a bit for resources to be cleaned up
 echo "⏳ Waiting for resources to be cleaned up..."
 sleep 5
@@ -45,8 +41,6 @@ echo ""
 echo "Remaining resources:"
 kubectl get pods
 kubectl get svc
-kubectl get pv
-kubectl get pvc
 echo ""
 echo "💡 Note: LoadBalancer deletion may take a few minutes to complete in AWS."
 

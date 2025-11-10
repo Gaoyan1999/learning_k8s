@@ -31,7 +31,6 @@ if [ -z "$BACKEND_IMAGE" ] || [ -z "$FRONTEND_IMAGE" ]; then
     # Get AWS account ID and region
     AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID:-$(aws sts get-caller-identity --query Account --output text 2>/dev/null || echo '')}"
     AWS_REGION="${AWS_REGION:-ap-southeast-2}"
-    ECR_REPOSITORY_PREFIX="${ECR_REPOSITORY_PREFIX:-learning-k8s}"
     
     if [ -z "$AWS_ACCOUNT_ID" ]; then
         echo "❌ Cannot get AWS_ACCOUNT_ID. Please set it manually:"
@@ -42,24 +41,24 @@ if [ -z "$BACKEND_IMAGE" ] || [ -z "$FRONTEND_IMAGE" ]; then
     fi
     
     ECR_REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-    BACKEND_IMAGE="${ECR_REGISTRY}/${ECR_REPOSITORY_PREFIX}-backend:latest"
-    FRONTEND_IMAGE="${ECR_REGISTRY}/${ECR_REPOSITORY_PREFIX}-frontend:latest"
+    export BACKEND_IMAGE="${ECR_REGISTRY}/learning-k8s-backend:latest"
+    export FRONTEND_IMAGE="${ECR_REGISTRY}/learning-k8s-frontend:latest"
     
     echo "✅ Auto-constructed image URLs:"
     echo "  Backend:  ${BACKEND_IMAGE}"
     echo "  Frontend: ${FRONTEND_IMAGE}"
     echo ""
+else
+    # Export the variables to make them available to envsubst
+    export BACKEND_IMAGE
+    export FRONTEND_IMAGE
 fi
 
-# Step 1: Create PVC (EKS will dynamically provision PV using EBS)
-echo "📦 Creating PersistentVolumeClaim (EKS will provision EBS volume)..."
-kubectl apply -f mysql-pv.yaml
-
-# Step 2: Create ConfigMap and Secret
+# Step 1: Create ConfigMap and Secret
 echo "🔐 Creating ConfigMap and Secret for MySQL..."
 kubectl apply -f mysql-config.yaml
 
-# Step 3: Deploy MySQL
+# Step 2: Deploy MySQL
 echo "🗄️  Deploying MySQL..."
 kubectl apply -f mysql-deployment.yaml
 
@@ -67,21 +66,21 @@ kubectl apply -f mysql-deployment.yaml
 echo "⏳ Waiting for MySQL to be ready..."
 sleep 30
 
-# Step 4: Create backend ConfigMap
+# Step 3: Create backend ConfigMap
 echo "⚙️  Creating backend ConfigMap..."
 kubectl apply -f backend-config.yaml
 
-# Step 5: Deploy backend
+# Step 4: Deploy backend
 echo "🔧 Deploying backend..."
 # Use envsubst to replace image URL
 envsubst < backend-deployment.yaml | kubectl apply -f -
 
-# Step 6: Deploy frontend
+# Step 5: Deploy frontend
 echo "🎨 Deploying frontend..."
 # Use envsubst to replace image URL
 envsubst < frontend-deployment.yaml | kubectl apply -f -
 
-# Step 7: Deploy frontend LoadBalancer service
+# Step 6: Deploy frontend LoadBalancer service
 echo "🌐 Deploying frontend LoadBalancer service..."
 kubectl apply -f frontend-service-lb.yaml
 

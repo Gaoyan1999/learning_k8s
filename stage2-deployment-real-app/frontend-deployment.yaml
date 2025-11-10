@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: ${FRONTEND_IMAGE:-frontend:latest}
+        image: ${FRONTEND_IMAGE}
         imagePullPolicy: Always
         ports:
         - containerPort: 80

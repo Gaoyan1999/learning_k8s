@@ -6,7 +6,7 @@ Deploy a full-stack application (Vue frontend + Spring Boot backend + MySQL data
 
 - **Frontend**: Vue 3 application (LoadBalancer Service)
 - **Backend**: Spring Boot REST API (ClusterIP Service) - reuses code from `../stage0-docker-basics/003_stardard_backend/`
-- **Database**: MySQL 8 with persistent storage (ClusterIP Service)
+- **Database**: MySQL 8 (ClusterIP Service)
 
 ## Prerequisites
 
@@ -53,18 +53,20 @@ aws ecr list-images --repository-name learning-k8s-frontend --region ap-southeas
 ```bash
 chmod +x setup.sh
 
-# Set image URLs (from build-images.sh output)
-# The script will output image URLs at the end, like:
-#   Backend:  <account-id>.dkr.ecr.ap-southeast-2.amazonaws.com/learning-k8s-backend:latest
-#   Frontend: <account-id>.dkr.ecr.ap-southeast-2.amazonaws.com/learning-k8s-frontend:latest
-# 
-# Or construct them manually:
-export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-export AWS_REGION=ap-southeast-2
-export BACKEND_IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/learning-k8s-backend:latest"
-export FRONTEND_IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/learning-k8s-frontend:latest"
+# The script will automatically construct image URLs if not set
+# You can optionally set them manually:
+export AWS_REGION=ap-southeast-2  # Optional, defaults to ap-southeast-2
+export ECR_REPOSITORY_PREFIX=learning-k8s  # Optional, defaults to learning-k8s
 
-# Deploy
+# Deploy (script will auto-construct image URLs)
+./setup.sh
+```
+
+**Note:** The script automatically constructs image URLs from your AWS account ID. If you want to use custom image URLs, you can set them before running the script:
+
+```bash
+export BACKEND_IMAGE=<your-ecr-backend-image-url>
+export FRONTEND_IMAGE=<your-ecr-frontend-image-url>
 ./setup.sh
 ```
 
@@ -72,11 +74,20 @@ export FRONTEND_IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/lea
 
 Wait for LoadBalancer to get external IP (1-2 minutes):
 
-```bash
-kubectl get svc frontend-service
-```
+**Get LoadBalancer address:**
 
-Access via the LoadBalancer endpoint shown in the output.
+```bash
+# Method 1: View the service (EXTERNAL-IP column shows the address)
+kubectl get svc frontend-service
+
+# Method 2: Get only the hostname
+kubectl get svc frontend-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+echo
+
+# Method 3: Save to variable for easy use
+export ENDPOINT=$(kubectl get svc frontend-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+echo "Frontend URL: http://${ENDPOINT}"
+```
 
 ### 5. Test the Application
 
@@ -102,9 +113,8 @@ chmod +x cleanup.sh
 
 ## Files
 
-- `mysql-pv.yaml`: PersistentVolumeClaim for MySQL data
 - `mysql-config.yaml`: ConfigMap and Secret for MySQL
-- `mysql-deployment.yaml`: MySQL deployment and service
+- `mysql-deployment.yaml`: MySQL deployment and service (no persistent storage)
 - `backend-config.yaml`: ConfigMap for backend
 - `backend-deployment.yaml`: Backend deployment and service
 - `frontend-deployment.yaml`: Frontend deployment
@@ -126,7 +136,7 @@ kubectl logs <pod-name>
 kubectl get svc
 ```
 
-### Check persistent volumes:
+### Check MySQL pod:
 ```bash
-kubectl get pvc
+kubectl logs -l app=mysql
 ```
