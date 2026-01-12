@@ -51,5 +51,9 @@ Services can be exposed in different ways by specifying a type in the spec of th
 
 - ExternalName
 
+### Headless Services
+A headless service does not get a cluster IP and **does not** load-balance traffic. It lets clients talk to individual Pods directly. It's typically used in StatefulSet, because statefulSets like database need direct, stable access to specific Pods, not random load-balanced routing.
+
+
 ## Services and Labels
 Services match a set of Pods using labels and selectors. Labels are key/value pairs attached to the objects
